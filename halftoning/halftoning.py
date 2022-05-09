@@ -19,7 +19,8 @@ parser = argparse.ArgumentParser(description='Halftoning')
 parser.add_argument('--input_image', default='baboon.png', help='Name of the input Image')
 parser.add_argument('--out_image', default='output_image.png', help='Name to save the image with halftoning')
 parser.add_argument('--mask', default='mask_Stucki', help='Define how mask will be used to halftoning, possibles values \
-                                                        [mask_Stucki, mask_Sierra, mask_Burkes, mask_Jarvis, mask_Stevenson, mask_Steinberg')
+                                                        [mask_Stucki, mask_Sierra, mask_Burkes, mask_Jarvis, mask_Stevenson, \
+                                                        mask_Steinberg]. For default the script use mask_Stucki')
 parser.add_argument('--zigzag', default='True', help='Define if the result will use ZigZag method')
 
 # Parse the paraments passed to the script
