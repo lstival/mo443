@@ -1,1 +1,0 @@
-Esse e o texto de input e nele é que estão todas as mensagens e caracteres necessarios para descrever e testar se o codigo esta e ira funcionar de forma correta, espero que apresente nenhum problema. Senao estarei em serios apuros.
