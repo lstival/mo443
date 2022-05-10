@@ -28,11 +28,13 @@ opt = parser.parse_args()
 
 ### Reading the image
 
+#Path where is the image
+path = "C:/mo443"
 #Define the channel image will be modifided
 channel = 2
 
 #get the image
-image = cv2.imread(opt.input_image)
+image = cv2.imread(f"{path}/{opt.input_image}")
 
 #Convert from BGR to RGB
 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -49,18 +51,19 @@ def create_middle_tons(luminance, mask, limit=3):
     Loop to apply the middle tons mask in each pixel of the image
     """
     #loop to check all pixels of the image
+
     g = np.round(luminance/255)
     
-    for row in tqdm(range(luminance.shape[0]-limit), desc="Applying normal way mask"):
+    for row in tqdm(range(luminance.shape[0]-limit)):
         for collumn in range(luminance.shape[1]-limit):
 
-            erro = (luminance[row][collumn] - g[row][collumn])
+            erro = (luminance[row][collumn] - (g[row][collumn])*255)
 
             #Applyig the mask
-            luminance = mask(luminance, erro, row, collumn)
+            luminance, g = mask(luminance, g, erro, row, collumn)
 
     #Return the value to original form
-    return luminance*255
+    return g*255
 
 ## Function to scroll image in zigzag
 def create_middle_tons_zigzag(luminance, mask, limit=3):
@@ -72,28 +75,28 @@ def create_middle_tons_zigzag(luminance, mask, limit=3):
     norm_luminance = luminance/255
     g = np.round(norm_luminance)
     
-    for row in tqdm(range(luminance.shape[0]-limit), desc="Applying ZigZag way mask"):
+    for row in tqdm(range(luminance.shape[0]-limit)):
         if row%2 == 0:    
             for collumn in range(luminance.shape[1]-limit):
 
-                erro = (luminance[row][collumn] - g[row][collumn])
+                erro = (luminance[row][collumn] - (g[row][collumn])*255)
 
                 #Applyig the mask
-                luminance = mask(luminance, erro, row, collumn)
+                luminance, g = mask(luminance, g, erro, row, collumn)
         else:
             for collumn in range(luminance.shape[1]-limit, limit, -1):
 
-                erro = (luminance[row][collumn] - g[row][collumn])
+                erro = (luminance[row][collumn] - (g[row][collumn])*255)
 
                 #Applyig the mask
-                luminance = mask(luminance, erro, row, collumn, -1)
+                luminance, g = mask(luminance, g, erro, row, collumn, -1)
     
     #Return the value to original form
-    return luminance*255
+    return g*255
 
 ### Mask functions
 
-def mask_Steinberg(luminance, erro, row, collumn, zizag=1):
+def mask_Steinberg(luminance, g, erro, row, collumn, zizag=1):
     """
     Apply the Floyd e Steinberg in a pixel of the image, and return the luminance and erro;
     """
@@ -102,11 +105,12 @@ def mask_Steinberg(luminance, erro, row, collumn, zizag=1):
     erro_tax = [7/16,3/16,5/16,1/16]
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
-        luminance[row+index[0], collumn+index[1]] += (index[2]*erro)*255
+        luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
     
-    return luminance 
+    return luminance, g
 
-def mask_Stevenson(luminance, erro, row, collumn, zizag=1):
+def mask_Stevenson(luminance, g, erro, row, collumn, zizag=1):
     """
     Apply the Stevenson in a pixel of the image, and return the luminance and erro;
     """
@@ -117,11 +121,11 @@ def mask_Stevenson(luminance, erro, row, collumn, zizag=1):
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
         luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
-
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
     
-    return luminance 
+    return luminance, g
 
-def mask_Burkes(luminance, erro, row, collumn, zizag=1):
+def mask_Burkes(luminance,g, erro, row, collumn, zizag=1):
     """
     Apply the Burkes in a pixel of the image, and return the luminance and erro;
     """
@@ -131,10 +135,11 @@ def mask_Burkes(luminance, erro, row, collumn, zizag=1):
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
         luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
     
-    return luminance 
+    return luminance, g
 
-def mask_Sierra(luminance, erro, row, collumn, zizag=1):
+def mask_Sierra(luminance,g, erro, row, collumn, zizag=1):
     """
     Apply the Sierra in a pixel of the image, and return the luminance and erro;
     """
@@ -144,10 +149,11 @@ def mask_Sierra(luminance, erro, row, collumn, zizag=1):
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
         luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
     
-    return luminance 
+    return luminance, g
 
-def mask_Stucki(luminance, erro, row, collumn, zizag=1):
+def mask_Stucki(luminance,g, erro, row, collumn, zizag=1):
     """
     Apply the Sierra in a pixel of the image, and return the luminance and erro;
     """
@@ -157,11 +163,11 @@ def mask_Stucki(luminance, erro, row, collumn, zizag=1):
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
         luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
         
-    
-    return luminance 
+    return luminance, g
 
-def mask_Jarvis(luminance, erro, row, collumn, zizag=1):
+def mask_Jarvis(luminance,g, erro, row, collumn, zizag=1):
     """
     Apply the Sierra in a pixel of the image, and return the luminance and erro;
     """
@@ -171,8 +177,9 @@ def mask_Jarvis(luminance, erro, row, collumn, zizag=1):
     
     for index in zip(idx_rows, idx_collumns, erro_tax):
         luminance[row+index[0], collumn+index[1]] += (index[2]*erro)
+        g[row+index[0], collumn+index[1]] = np.round(luminance[row+index[0], collumn+index[1]]/255)
     
-    return luminance 
+    return luminance, g
 
 ##List of masks
 possibles_masks = [mask_Stucki, mask_Sierra, mask_Burkes, mask_Jarvis, mask_Stevenson, mask_Steinberg]
@@ -215,7 +222,7 @@ def apply_mask(mask, zigzag=True):
         ax2.imshow(img_copy_zigzag)
         ax2.set_title("Mask applied in ZigZag")
 
-        plt.savefig(opt.out_image)
+        plt.savefig(f"{opt.out_image}")
         
     else:
         #Plot the results when zigzag is False
@@ -228,7 +235,7 @@ def apply_mask(mask, zigzag=True):
         ax1.imshow(img_copy)
         ax1.set_title("Mask applied")
 
-        plt.savefig(opt.out_image)
+        plt.savefig(f"{opt.out_image}")
 
 #Result of aplication of the mask
 apply_mask(mask, opt.zigzag)
