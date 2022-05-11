@@ -28,13 +28,11 @@ opt = parser.parse_args()
 
 ### Reading the image
 
-#Path where is the image
-path = "C:/mo443"
 #Define the channel image will be modifided
 channel = 2
 
 #get the image
-image = cv2.imread(f"{path}/{opt.input_image}")
+image = cv2.imread(f"{opt.input_image}")
 
 #Convert from BGR to RGB
 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
