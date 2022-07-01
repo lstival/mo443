@@ -33,14 +33,6 @@ image_name = "baboon.png"
 img_pespective = io.imread(f"{image_path}{image_name_pesp}")
 img = io.imread(f"{image_path}{image_name}")
 
-fig, axs = plt.subplots(1, 2, figsize=(16,5))
-
-axs[0].imshow(np.array(img), cmap='gray')
-axs[0].set_title("Original image")
-
-axs[1].imshow(np.array(img_pespective), cmap='gray')
-axs[1].set_title("Transformed image")
-
 ### Perspective Projection
 
 #Coordenadas originais da imagem transacionada
@@ -52,17 +44,23 @@ pts2 = np.float32([[0, 0], [511, 0], [511, 511], [0, 511]])
 #Gerando a matriz contendo as perspectiva para transformação
 matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
-#Nova imagem contendo as novas perspectivas
-result = cv2.warpPerspective(img_pespective, matrix, img.shape)
+#Gerando a matriz contendo as perspectiva para transformação
+matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
-fig, axs = plt.subplots(1, 2, figsize=(16,5))
+#Matriz inversa para tirar a perspectiva
+matrix_inverse = np.linalg.inv(matrix)
 
-axs[0].imshow(np.array(img_pespective), cmap='gray')
-axs[0].set_title("Original image x")
+#New image without perspective
+new_img = np.zeros(img_pespective.shape, dtype=img.dtype)
 
-axs[1].imshow(result[:,:,0], cmap='gray')
-axs[1].set_title("Transfomed image x'")
+for lin in range(new_img.shape[0]):
+    for col in range(new_img.shape[1]):
 
+        new_col, new_line, w = np.matmul(matrix_inverse, [col, lin, 1])
+        
+        new_img[lin, col] = img_pespective[round(new_line/w), round(new_col/w)]
+
+io.imsave(f"imagem_exercicio_1.png", new_img)
 
 # ## Exercicio (2)
 # Criar um programa que realize a escala ou rotação, aplicando a interpolação solicitada.
